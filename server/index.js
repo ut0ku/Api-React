@@ -1,15 +1,43 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
+
+// Подключаем Swagger
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const app = express();
 const PORT = 3001;
 
-// Промежуточное ПО
 app.use(cors());
 app.use(express.json());
 
-// База данных товаров в памяти (12 товаров - более 10)
+// Swagger definition
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API Интернет-магазина',
+      version: '1.0.0',
+      description: 'API для управления товарами и категориями интернет-магазина',
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}`,
+        description: 'Локальный сервер',
+      },
+    ],
+  },
+  apis: ['./server/index.js'],
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
+// Подключаем Swagger UI по адресу /api-docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Бд товаров
 let products = [
   { id: 1, name: "Ноутбук ASUS VivoBook 15", category: "Ноутбуки", description: "15.6 дюймов, Intel Core i5, 8GB RAM, 512GB SSD", price: 54990, stock: 15, rating: 4.5, image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=200&h=200&fit=crop" },
   { id: 2, name: "Смартфон Samsung Galaxy A54", category: "Смартфоны", description: "6.4 дюйма, 128GB, 8GB RAM, камера 50MP", price: 35990, stock: 23, rating: 4.3, image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=200&fit=crop" },
@@ -38,34 +66,141 @@ const categories = [
   "Аудио"
 ];
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Product:
+ *       type: object
+ *       required:
+ *         - name
+ *         - category
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: Уникальный ID товара
+ *         name:
+ *           type: string
+ *           description: Название товара
+ *         category:
+ *           type: string
+ *           description: Категория товара
+ *         description:
+ *           type: string
+ *           description: Описание товара
+ *         price:
+ *           type: number
+ *           description: Цена товара
+ *         stock:
+ *           type: integer
+ *           description: Количество на складе
+ *         rating:
+ *           type: number
+ *           description: Рейтинг товара
+ *         image:
+ *           type: string
+ *           description: URL изображения товара
+ *       example:
+ *         id: 1
+ *         name: "Ноутбук ASUS VivoBook 15"
+ *         category: "Ноутбуки"
+ *         description: "15.6 дюймов, Intel Core i5, 8GB RAM, 512GB SSD"
+ *         price: 54990
+ *         stock: 15
+ *         rating: 4.5
+ *         image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=200&h=200&fit=crop"
+ *     Category:
+ *       type: string
+ *       description: Название категории
+ *       example: "Ноутбуки"
+ */
+
 // API маршруты
 
-// Корневой маршрут - информация об API
 app.get('/', (req, res) => {
   res.json({ 
     message: 'API is running',
     endpoints: {
       products: '/api/products',
-      categories: '/api/categories'
+      categories: '/api/categories',
+      swagger: '/api-docs'
     }
   });
 });
 
-// Получить все товары
+app.get('/api', (req, res) => {
+  res.json({ 
+    message: 'API is running',
+    endpoints: {
+      products: '/api/products',
+      categories: '/api/categories',
+      swagger: '/api-docs'
+    }
+  });
+});
+
+// ==================== PRODUCTS API ====================
+
+/**
+ * @swagger
+ * /api/products:
+ *   get:
+ *     summary: Возвращает список всех товаров
+ *     tags: [Products]
+ *     responses:
+ *       200:
+ *         description: Список товаров
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
+ */
 app.get('/api/products', (req, res) => {
   res.json(products);
 });
 
-// Получить товар по ID
-app.get('/api/products/:id', (req, res) => {
-  const product = products.find(p => p.id === parseInt(req.params.id));
-  if (!product) {
-    return res.status(404).json({ error: 'Product not found' });
-  }
-  res.json(product);
-});
-
-// Создать новый товар
+/**
+ * @swagger
+ * /api/products:
+ *   post:
+ *     summary: Создает новый товар
+ *     tags: [Products]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - category
+ *             properties:
+ *               name:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               stock:
+ *                 type: integer
+ *               rating:
+ *                 type: number
+ *               image:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Товар успешно создан
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Ошибка в теле запроса
+ */
 app.post('/api/products', (req, res) => {
   const { name, category, description, price, stock, rating, image } = req.body;
   
@@ -88,7 +223,81 @@ app.post('/api/products', (req, res) => {
   res.status(201).json(newProduct);
 });
 
-// Обновить товар
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   get:
+ *     summary: Получает товар по ID
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID товара
+ *     responses:
+ *       200:
+ *         description: Данные товара
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Product'
+ *       404:
+ *         description: Товар не найден
+ */
+app.get('/api/products/:id', (req, res) => {
+  const product = products.find(p => p.id === parseInt(req.params.id));
+  if (!product) {
+    return res.status(404).json({ error: 'Product not found' });
+  }
+  res.json(product);
+});
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   put:
+ *     summary: Обновляет данные товара
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID товара
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               stock:
+ *                 type: integer
+ *               rating:
+ *                 type: number
+ *               image:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Обновленный товар
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Product'
+ *       404:
+ *         description: Товар не найден
+ */
 app.put('/api/products/:id', (req, res) => {
   const id = parseInt(req.params.id);
   const index = products.findIndex(p => p.id === id);
@@ -113,7 +322,25 @@ app.put('/api/products/:id', (req, res) => {
   res.json(products[index]);
 });
 
-// Удалить товар
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   delete:
+ *     summary: Удаляет товар
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID товара
+ *     responses:
+ *       200:
+ *         description: Товар успешно удален
+ *       404:
+ *         description: Товар не найден
+ */
 app.delete('/api/products/:id', (req, res) => {
   const id = parseInt(req.params.id);
   const index = products.findIndex(p => p.id === id);
@@ -126,14 +353,29 @@ app.delete('/api/products/:id', (req, res) => {
   res.json({ success: true });
 });
 
-// Получить категории
+// ==================== CATEGORIES API ====================
+
+/**
+ * @swagger
+ * /api/categories:
+ *   get:
+ *     summary: Возвращает список всех категорий
+ *     tags: [Categories]
+ *     responses:
+ *       200:
+ *         description: Список категорий
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Category'
+ */
 app.get('/api/categories', (req, res) => {
   res.json(categories);
 });
 
-// Раздача статических файлов из React build в продакшене
 const buildPath = path.join(__dirname, '../build');
-const fs = require('fs');
 
 if (fs.existsSync(buildPath)) {
   app.use(express.static(buildPath));
@@ -143,8 +385,19 @@ if (fs.existsSync(buildPath)) {
   });
 }
 
-// Запуск сервера
+// 404 для всех остальных маршрутов
+app.use((req, res) => {
+  res.status(404).json({ error: "Not found" });
+});
+
+// Глобальный обработчик ошибок (чтобы сервер не падал)
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  res.status(500).json({ error: "Internal server error" });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   console.log(`API available at http://localhost:${PORT}/api`);
+  console.log(`Swagger UI available at http://localhost:${PORT}/api-docs`);
 });

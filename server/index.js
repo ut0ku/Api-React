@@ -1,9 +1,12 @@
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = 'supersecretkey'; // В реальном проекте хранить в .env
 
 // Подключаем Swagger
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -56,6 +59,23 @@ let products = [
 ];
 
 let users = [];
+
+// Middleware для проверки токена
+function authMiddleware(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+  }
+  const token = authHeader.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+  }
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: 'Неверный токен' });
+    req.user = user;
+    next();
+  });
+}
 
 // Категории
 const categories = [
@@ -214,6 +234,7 @@ app.post('/api/auth/register', async (req, res) => {
  *       401:
  *         description: Неверный email или пароль
  */
+
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -227,6 +248,18 @@ app.post('/api/auth/login', async (req, res) => {
   if (!isMatch) {
     return res.status(401).json({ error: 'Неверный email или пароль' });
   }
+  // Генерируем токен
+  const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+  res.json({
+    token,
+    user: { id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name }
+  });
+});
+
+// Защищённый маршрут для получения текущего пользователя
+app.get('/api/auth/me', authMiddleware, (req, res) => {
+  const user = users.find(u => u.id === req.user.id);
+  if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
   res.json({ id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name });
 });
 
@@ -348,7 +381,8 @@ app.post('/api/products', (req, res) => {
  *       404:
  *         description: Товар не найден
  */
-app.get('/api/products/:id', (req, res) => {
+// Защищённый маршрут
+app.get('/api/products/:id', authMiddleware, (req, res) => {
   const product = products.find(p => p.id === parseInt(req.params.id));
   if (!product) {
     return res.status(404).json({ error: 'Product not found' });
@@ -400,16 +434,13 @@ app.get('/api/products/:id', (req, res) => {
  *       404:
  *         description: Товар не найден
  */
-app.put('/api/products/:id', (req, res) => {
+app.put('/api/products/:id', authMiddleware, (req, res) => {
   const id = parseInt(req.params.id);
   const index = products.findIndex(p => p.id === id);
-  
   if (index === -1) {
     return res.status(404).json({ error: 'Product not found' });
   }
-  
   const { name, category, description, price, stock, rating, image } = req.body;
-  
   products[index] = {
     ...products[index],
     name: name || products[index].name,
@@ -420,7 +451,6 @@ app.put('/api/products/:id', (req, res) => {
     rating: rating !== undefined ? rating : products[index].rating,
     image: image !== undefined ? image : products[index].image
   };
-  
   res.json(products[index]);
 });
 
@@ -443,14 +473,12 @@ app.put('/api/products/:id', (req, res) => {
  *       404:
  *         description: Товар не найден
  */
-app.delete('/api/products/:id', (req, res) => {
+app.delete('/api/products/:id', authMiddleware, (req, res) => {
   const id = parseInt(req.params.id);
   const index = products.findIndex(p => p.id === id);
-  
   if (index === -1) {
     return res.status(404).json({ error: 'Product not found' });
   }
-  
   products = products.filter(p => p.id !== id);
   res.json({ success: true });
 });

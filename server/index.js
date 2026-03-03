@@ -3,6 +3,8 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 
+const bcrypt = require('bcryptjs');
+
 // Подключаем Swagger
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
@@ -52,6 +54,8 @@ let products = [
   { id: 11, name: "Колонка JBL Flip 6", category: "Аудио", description: "Портативная, 12ч автономности, водонепроницаемая", price: 11990, stock: 18, rating: 4.5, image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=200&h=200&fit=crop" },
   { id: 12, name: "Микрофон Blue Yeti X", category: "Аудио", description: "USB, 4 капсюля, 24-bit, поп-фильтр в комплекте", price: 14990, stock: 12, rating: 4.7, image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=200&h=200&fit=crop" },
 ];
+
+let users = [];
 
 // Категории
 const categories = [
@@ -126,6 +130,104 @@ app.get('/', (req, res) => {
       swagger: '/api-docs'
     }
   });
+});
+
+// ==================== AUTH API ====================
+
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Регистрация пользователя
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - first_name
+ *               - last_name
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               first_name:
+ *                 type: string
+ *               last_name:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Пользователь успешно зарегистрирован
+ *       400:
+ *         description: Ошибка в теле запроса или пользователь уже существует
+ */
+app.post('/api/auth/register', async (req, res) => {
+  const { email, first_name, last_name, password } = req.body;
+  if (!email || !first_name || !last_name || !password) {
+    return res.status(400).json({ error: 'Все поля обязательны' });
+  }
+  if (users.find(u => u.email === email)) {
+    return res.status(400).json({ error: 'Пользователь с таким email уже существует' });
+  }
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const newUser = {
+    id: users.length ? Math.max(...users.map(u => u.id), 0) + 1 : 1,
+    email,
+    first_name,
+    last_name,
+    password: hashedPassword
+  };
+  users.push(newUser);
+  res.status(201).json({ id: newUser.id, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name });
+});
+
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Вход пользователя
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Успешный вход
+ *       400:
+ *         description: Неверные данные
+ *       401:
+ *         description: Неверный email или пароль
+ */
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email и пароль обязательны' });
+  }
+  const user = users.find(u => u.email === email);
+  if (!user) {
+    return res.status(401).json({ error: 'Неверный email или пароль' });
+  }
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({ error: 'Неверный email или пароль' });
+  }
+  res.json({ id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name });
 });
 
 app.get('/api', (req, res) => {

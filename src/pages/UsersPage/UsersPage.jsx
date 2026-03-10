@@ -3,6 +3,7 @@ import "./UsersPage.scss";
 import UsersList from "../../components/UsersList";
 import UserModal from "../../components/UserModal";
 import api from "../../api";
+import { useAuth } from "../../context/AuthContext";
 
 // Товары
 const INITIAL_PRODUCTS = [
@@ -35,6 +36,7 @@ const CATEGORIES = [
 ];
 
 export default function StorePage() {
+  const { user, logout } = useAuth();
   const [products, setProducts] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
@@ -218,7 +220,16 @@ export default function StorePage() {
       <header className="header">
         <div className="header__inner">
           <div className="brand">Магазин электроники</div>
-          <div className="header__right">React</div>
+          <div className="header__right">
+            {user && (
+              <span className="header__user">
+                {user.first_name} {user.last_name}
+              </span>
+            )}
+            <button className="btn btn--logout" onClick={logout}>
+              Выйти
+            </button>
+          </div>
         </div>
       </header>
       

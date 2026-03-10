@@ -44,9 +44,17 @@ $successBg: rgba(34, 197, 94, 0.12);
   }
 
   &__right {
-    opacity: 0.75;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     font-size: 13px;
   }
+}
+
+.header__user {
+  opacity: 0.85;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .brand {
@@ -99,6 +107,23 @@ $successBg: rgba(34, 197, 94, 0.12);
   &--success {
     background: $successBg;
     border: 1px solid $success;
+  }
+
+  &--logout {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 13px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+
+    &:hover {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #fff;
+    }
   }
 }
 

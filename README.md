@@ -9,7 +9,7 @@
 <img width="954" height="441" alt="image_2026-03-10_15-18-23" src="https://github.com/user-attachments/assets/334a1d70-4c1b-4c7e-a83f-b333c062033f" />
 
 Refresh токенов
-Токен до обновления - (eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZXN0bWFpbEBnbWFpbC5jb20iLCJpYXQiOjE3NzMxNDUwNzUsImV4cCI6MTc3Mzc0OTg3NX0.CaUaskDr0NjI6WEkFfJSOvMOO1u9kI_cVikcYy5u32k)
+Токены до обновления - (eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZXN0bWFpbEBnbWFpbC5jb20iLCJpYXQiOjE3NzMxNDUwNzUsImV4cCI6MTc3Mzc0OTg3NX0.CaUaskDr0NjI6WEkFfJSOvMOO1u9kI_cVikcYy5u32k)
 <img width="954" height="441" alt="image_2026-03-10_15-19-08" src="https://github.com/user-attachments/assets/16bd764c-53b6-489c-915d-33b4ec4023c1" />
 
 Токены после обновления - (eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZXN0bWFpbEBnbWFpbC5jb20iLCJpYXQiOjE3NzMxNDUxNTksImV4cCI6MTc3Mzc0OTk1OX0.wsfbFY2R8Nzdpzzv0ItqobBKIqWVhazrENx6Vkc4jf4)

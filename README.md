@@ -9,10 +9,10 @@
 <img width="954" height="441" alt="image_2026-03-10_15-18-23" src="https://github.com/user-attachments/assets/334a1d70-4c1b-4c7e-a83f-b333c062033f" />
 
 Refresh токенов
-Токены до обновления - (eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZXN0bWFpbEBnbWFpbC5jb20iLCJpYXQiOjE3NzMxNDUwNzUsImV4cCI6MTc3Mzc0OTg3NX0.CaUaskDr0NjI6WEkFfJSOvMOO1u9kI_cVikcYy5u32k)
+Токены до обновления
 <img width="954" height="441" alt="image_2026-03-10_15-19-08" src="https://github.com/user-attachments/assets/16bd764c-53b6-489c-915d-33b4ec4023c1" />
 
-Токены после обновления - (eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZXN0bWFpbEBnbWFpbC5jb20iLCJpYXQiOjE3NzMxNDUxNTksImV4cCI6MTc3Mzc0OTk1OX0.wsfbFY2R8Nzdpzzv0ItqobBKIqWVhazrENx6Vkc4jf4)
+Токены после обновления
 <img width="954" height="441" alt="image_2026-03-10_15-20-25" src="https://github.com/user-attachments/assets/99f50019-c533-428c-a0d7-f59aed5afeb4" />
 <img width="954" height="441" alt="image_2026-03-10_15-20-42" src="https://github.com/user-attachments/assets/63fd73c0-dd7b-478a-a107-423703a51bed" />
 

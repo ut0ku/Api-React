@@ -1,3 +1,28 @@
+Практика 9-10
+Была реализована генерация refresh токенов и добавлен маршрут - Post /api/auth/refresh
+Регистрация
+<img width="954" height="441" alt="image_2026-03-10_15-17-17" src="https://github.com/user-attachments/assets/6eb1c795-c37a-4944-9663-2d05c460a6e8" />
+<img width="954" height="441" alt="image_2026-03-10_15-17-32" src="https://github.com/user-attachments/assets/fbe03aa9-5c23-4a5e-b81e-a9f6dd9dadb4" />
+
+Вход и получение токенов
+<img width="954" height="441" alt="image_2026-03-10_15-18-09" src="https://github.com/user-attachments/assets/39989a3b-902d-423e-9286-d9982b750c7b" />
+<img width="954" height="441" alt="image_2026-03-10_15-18-23" src="https://github.com/user-attachments/assets/334a1d70-4c1b-4c7e-a83f-b333c062033f" />
+
+Refresh токенов
+Токен до обновления - (eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZXN0bWFpbEBnbWFpbC5jb20iLCJpYXQiOjE3NzMxNDUwNzUsImV4cCI6MTc3Mzc0OTg3NX0.CaUaskDr0NjI6WEkFfJSOvMOO1u9kI_cVikcYy5u32k)
+<img width="954" height="441" alt="image_2026-03-10_15-19-08" src="https://github.com/user-attachments/assets/16bd764c-53b6-489c-915d-33b4ec4023c1" />
+
+Токены после обновления - (eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZXN0bWFpbEBnbWFpbC5jb20iLCJpYXQiOjE3NzMxNDUxNTksImV4cCI6MTc3Mzc0OTk1OX0.wsfbFY2R8Nzdpzzv0ItqobBKIqWVhazrENx6Vkc4jf4)
+<img width="954" height="441" alt="image_2026-03-10_15-20-25" src="https://github.com/user-attachments/assets/99f50019-c533-428c-a0d7-f59aed5afeb4" />
+<img width="954" height="441" alt="image_2026-03-10_15-20-42" src="https://github.com/user-attachments/assets/63fd73c0-dd7b-478a-a107-423703a51bed" />
+
+Также было реализовано хранение токенов в localstorage через встроенную в библиотеку axios утилиту: interceptors
+<img width="954" height="441" alt="image_2026-03-10_16-06-21" src="https://github.com/user-attachments/assets/9c226c52-8857-43a5-b4a4-329cac9fda3b" />
+
+Были реализованы страницы входа и регистрации (с валидацией)
+<img width="1908" height="882" alt="image" src="https://github.com/user-attachments/assets/7bdc470a-dd7a-43d4-b4e3-36d53ad85abc" />
+<img width="1908" height="882" alt="image" src="https://github.com/user-attachments/assets/081b62d4-e0f9-4135-874a-488ff73b1df6" />
+
 Практика 7-8
 Добавлены (реализованы) маршруты: /api/auth/register и /api/auth/login
 POST (/api/auth/register)

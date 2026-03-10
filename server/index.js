@@ -6,7 +6,11 @@ const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = 'supersecretkey'; // В реальном проекте хранить в .env
+const JWT_SECRET = 'supersecretkey';         // В реальном проекте хранить в .env
+const JWT_REFRESH_SECRET = 'superrefreshkey'; // В реальном проекте хранить в .env
+
+// Хранилище действующих refresh-токенов (в реальном проекте — БД / Redis)
+const refreshTokensStore = new Set();
 
 // Подключаем Swagger
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -137,6 +141,18 @@ const categories = [
  *       type: string
  *       description: Название категории
  *       example: "Ноутбуки"
+ *     TokenPair:
+ *       type: object
+ *       properties:
+ *         accessToken:
+ *           type: string
+ *           description: JWT access-токен (живёт 15 минут)
+ *         refreshToken:
+ *           type: string
+ *           description: JWT refresh-токен (живёт 7 дней)
+ *       example:
+ *         accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *         refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
  */
 
 // API маршруты
@@ -228,13 +244,16 @@ app.post('/api/auth/register', async (req, res) => {
  *                 type: string
  *     responses:
  *       200:
- *         description: Успешный вход
+ *         description: Успешный вход — возвращает пару токенов
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TokenPair'
  *       400:
  *         description: Неверные данные
  *       401:
  *         description: Неверный email или пароль
  */
-
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -248,11 +267,66 @@ app.post('/api/auth/login', async (req, res) => {
   if (!isMatch) {
     return res.status(401).json({ error: 'Неверный email или пароль' });
   }
-  // Генерируем токен
-  const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
-  res.json({
-    token,
-    user: { id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name }
+
+  // Генерируем пару токенов
+  const accessToken  = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET,         { expiresIn: '15m' });
+  const refreshToken = jwt.sign({ id: user.id, email: user.email }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
+
+  refreshTokensStore.add(refreshToken);
+
+  res.json({ accessToken, refreshToken });
+});
+
+/**
+ * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Обновление пары токенов по refresh-токену
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: header
+ *         name: x-refresh-token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Действующий refresh-токен
+ *     responses:
+ *       200:
+ *         description: Новая пара токенов
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TokenPair'
+ *       401:
+ *         description: Refresh-токен отсутствует или не найден в хранилище
+ *       403:
+ *         description: Refresh-токен недействителен или истёк
+ */
+app.post('/api/auth/refresh', (req, res) => {
+  const refreshToken = req.headers['x-refresh-token'];
+
+  if (!refreshToken) {
+    return res.status(401).json({ error: 'Refresh-токен отсутствует' });
+  }
+  if (!refreshTokensStore.has(refreshToken)) {
+    return res.status(401).json({ error: 'Refresh-токен не найден или уже был использован' });
+  }
+
+  jwt.verify(refreshToken, JWT_REFRESH_SECRET, (err, payload) => {
+    if (err) {
+      refreshTokensStore.delete(refreshToken); // удаляем протухший токен
+      return res.status(403).json({ error: 'Refresh-токен недействителен или истёк' });
+    }
+
+    // Ротация: старый токен удаляем, генерируем новую пару
+    refreshTokensStore.delete(refreshToken);
+
+    const newAccessToken  = jwt.sign({ id: payload.id, email: payload.email }, JWT_SECRET,         { expiresIn: '15m' });
+    const newRefreshToken = jwt.sign({ id: payload.id, email: payload.email }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
+
+    refreshTokensStore.add(newRefreshToken);
+
+    res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
   });
 });
 

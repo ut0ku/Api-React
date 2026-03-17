@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import StorePage from './pages/UsersPage/UsersPage';
+import AdminUsersPage from './pages/AdminUsersPage/AdminUsersPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import RegisterPage from './pages/RegisterPage/RegisterPage';
 
@@ -15,8 +16,16 @@ function App() {
           <Route
             path="/"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['User', 'Seller', 'Admin']}>
                 <StorePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <AdminUsersPage />
               </ProtectedRoute>
             }
           />

@@ -81,6 +81,27 @@ function authMiddleware(req, res, next) {
   });
 }
 
+// Роли
+const ROLES = {
+  USER: 'User',
+  SELLER: 'Seller',
+  ADMIN: 'Admin'
+};
+
+// Средство проверки ролей (RBAC)
+function roleMiddleware(allowedRoles) {
+  return (req, res, next) => {
+    const user = users.find(u => u.id === req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+    if (!allowedRoles.includes(user.role)) {
+      return res.status(403).json({ error: 'Доступ запрещен' });
+    }
+    next();
+  };
+}
+
 // Категории
 const categories = [
   "Ноутбуки",
@@ -216,7 +237,8 @@ app.post('/api/auth/register', async (req, res) => {
     email,
     first_name,
     last_name,
-    password: hashedPassword
+    password: hashedPassword,
+    role: users.length === 0 ? 'Admin' : 'User' // Первый пользователь — Администратор
   };
   users.push(newUser);
   res.status(201).json({ id: newUser.id, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name });
@@ -334,7 +356,7 @@ app.post('/api/auth/refresh', (req, res) => {
 app.get('/api/auth/me', authMiddleware, (req, res) => {
   const user = users.find(u => u.id === req.user.id);
   if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
-  res.json({ id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name });
+  res.json({ id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name, role: user.role });
 });
 
 app.get('/api', (req, res) => {
@@ -346,6 +368,37 @@ app.get('/api', (req, res) => {
       swagger: '/api-docs'
     }
   });
+});
+
+// ==================== USERS API (Admin) ====================
+app.get('/api/users', authMiddleware, roleMiddleware([ROLES.ADMIN]), (req, res) => {
+  const safeUsers = users.map(u => ({ id: u.id, email: u.email, first_name: u.first_name, last_name: u.last_name, role: u.role }));
+  res.json(safeUsers);
+});
+
+app.get('/api/users/:id', authMiddleware, roleMiddleware([ROLES.ADMIN]), (req, res) => {
+  const user = users.find(u => u.id === parseInt(req.params.id));
+  if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
+  res.json({ id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name, role: user.role });
+});
+
+app.put('/api/users/:id', authMiddleware, roleMiddleware([ROLES.ADMIN]), (req, res) => {
+  const id = parseInt(req.params.id);
+  const index = users.findIndex(u => u.id === id);
+  if (index === -1) return res.status(404).json({ error: 'Пользователь не найден' });
+  const { role } = req.body;
+  if (role && [ROLES.USER, ROLES.SELLER, ROLES.ADMIN].includes(role)) {
+    users[index].role = role;
+  }
+  res.json({ id: users[index].id, email: users[index].email, first_name: users[index].first_name, last_name: users[index].last_name, role: users[index].role });
+});
+
+app.delete('/api/users/:id', authMiddleware, roleMiddleware([ROLES.ADMIN]), (req, res) => {
+  const id = parseInt(req.params.id);
+  const index = users.findIndex(u => u.id === id);
+  if (index === -1) return res.status(404).json({ error: 'Пользователь не найден' });
+  users = users.filter(u => u.id !== id);
+  res.json({ success: true });
 });
 
 // ==================== PRODUCTS API ====================
@@ -366,7 +419,7 @@ app.get('/api', (req, res) => {
  *               items:
  *                 $ref: '#/components/schemas/Product'
  */
-app.get('/api/products', (req, res) => {
+app.get('/api/products', authMiddleware, roleMiddleware([ROLES.USER, ROLES.SELLER, ROLES.ADMIN]), (req, res) => {
   res.json(products);
 });
 
@@ -410,7 +463,7 @@ app.get('/api/products', (req, res) => {
  *       400:
  *         description: Ошибка в теле запроса
  */
-app.post('/api/products', (req, res) => {
+app.post('/api/products', authMiddleware, roleMiddleware([ROLES.SELLER, ROLES.ADMIN]), (req, res) => {
   const { name, category, description, price, stock, rating, image } = req.body;
   
   if (!name || !category) {
@@ -456,7 +509,7 @@ app.post('/api/products', (req, res) => {
  *         description: Товар не найден
  */
 // Защищённый маршрут
-app.get('/api/products/:id', authMiddleware, (req, res) => {
+app.get('/api/products/:id', authMiddleware, roleMiddleware([ROLES.USER, ROLES.SELLER, ROLES.ADMIN]), (req, res) => {
   const product = products.find(p => p.id === parseInt(req.params.id));
   if (!product) {
     return res.status(404).json({ error: 'Product not found' });
@@ -508,7 +561,7 @@ app.get('/api/products/:id', authMiddleware, (req, res) => {
  *       404:
  *         description: Товар не найден
  */
-app.put('/api/products/:id', authMiddleware, (req, res) => {
+app.put('/api/products/:id', authMiddleware, roleMiddleware([ROLES.SELLER, ROLES.ADMIN]), (req, res) => {
   const id = parseInt(req.params.id);
   const index = products.findIndex(p => p.id === id);
   if (index === -1) {
@@ -547,7 +600,7 @@ app.put('/api/products/:id', authMiddleware, (req, res) => {
  *       404:
  *         description: Товар не найден
  */
-app.delete('/api/products/:id', authMiddleware, (req, res) => {
+app.delete('/api/products/:id', authMiddleware, roleMiddleware([ROLES.ADMIN]), (req, res) => {
   const id = parseInt(req.params.id);
   const index = products.findIndex(p => p.id === id);
   if (index === -1) {

@@ -123,6 +123,28 @@ export const api = {
     return response.data;
   },
 
+  // ==================== USERS (Admin) ====================
+
+  async getUsers() {
+    const response = await apiClient.get('/users');
+    return response.data;
+  },
+
+  async getUser(id) {
+    const response = await apiClient.get(`/users/${id}`);
+    return response.data;
+  },
+
+  async updateUserRole(id, role) {
+    const response = await apiClient.put(`/users/${id}`, { role });
+    return response.data;
+  },
+
+  async deleteUser(id) {
+    const response = await apiClient.delete(`/users/${id}`);
+    return response.data;
+  },
+
   // ==================== CATEGORIES ====================
 
   // Получить категории

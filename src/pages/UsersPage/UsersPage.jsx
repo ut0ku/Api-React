@@ -4,6 +4,7 @@ import UsersList from "../../components/UsersList";
 import UserModal from "../../components/UserModal";
 import api from "../../api";
 import { useAuth } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
 
 // Товары
 const INITIAL_PRODUCTS = [
@@ -223,8 +224,11 @@ export default function StorePage() {
           <div className="header__right">
             {user && (
               <span className="header__user">
-                {user.first_name} {user.last_name}
+                {user.first_name} {user.last_name} ({user.role})
               </span>
+            )}
+            {user?.role === 'Admin' && (
+              <Link to="/users" className="btn" style={{ marginRight: '10px' }}>Управление пользователями</Link>
             )}
             <button className="btn btn--logout" onClick={logout}>
               Выйти
@@ -237,9 +241,11 @@ export default function StorePage() {
         <div className="container">
           <div className="toolbar">
             <h1 className="title">Каталог товаров</h1>
-            <button className="btn btn--primary" onClick={openCreate}>
-              + Добавить товар
-            </button>
+            {(user?.role === 'Seller' || user?.role === 'Admin') && (
+              <button className="btn btn--primary" onClick={openCreate}>
+                + Добавить товар
+              </button>
+            )}
           </div>
 
           {/* Stats */}
@@ -283,7 +289,8 @@ export default function StorePage() {
           <UsersList 
             products={filteredProducts} 
             onEdit={openEdit} 
-            onDelete={handleDelete} 
+            onDelete={handleDelete}
+            userRole={user?.role}
           />
         </div>
       </main>

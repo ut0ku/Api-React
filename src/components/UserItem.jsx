@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function UserItem({ product, onEdit, onDelete }) {
+export default function UserItem({ product, onEdit, onDelete, userRole }) {
   const getStockClass = () => {
     if (product.stock === 0) return "productStock--out";
     if (product.stock < 5) return "productStock--low";
@@ -50,12 +50,16 @@ export default function UserItem({ product, onEdit, onDelete }) {
         </div>
       </div>
       <div className="productActions">
-        <button className="btn" onClick={() => onEdit(product)}>
-          Редактировать
-        </button>
-        <button className="btn btn--danger" onClick={() => onDelete(product.id)}>
-          Удалить
-        </button>
+        {(userRole === 'Seller' || userRole === 'Admin') && (
+          <button className="btn" onClick={() => onEdit(product)}>
+            Редактировать
+          </button>
+        )}
+        {userRole === 'Admin' && (
+          <button className="btn btn--danger" onClick={() => onDelete(product.id)}>
+            Удалить
+          </button>
+        )}
       </div>
     </div>
   );

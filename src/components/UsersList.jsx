@@ -1,7 +1,7 @@
 import React from "react";
 import UserItem from "./UserItem";
 
-export default function UsersList({ products, onEdit, onDelete }) {
+export default function UsersList({ products, onEdit, onDelete, userRole }) {
   if (!products || !products.length) {
     return <div className="empty">Товаров пока нет</div>;
   }
@@ -13,7 +13,8 @@ export default function UsersList({ products, onEdit, onDelete }) {
           key={product.id} 
           product={product} 
           onEdit={onEdit} 
-          onDelete={onDelete} 
+          onDelete={onDelete}
+          userRole={userRole}
         />
       ))}
     </div>

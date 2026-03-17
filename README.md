@@ -1,3 +1,80 @@
+Практика 11-12
+Была реализована система ролей таких как: Гость, пользователь, продавец, администратор.
+А также права доступа такие как:
+Гость - не аутентифицированный пользователь
+Пользователь - пользователь сайта (только просмотр товаров)
+Продавец - сотрудник сайта (добавление и редактирование товаров)
+Администратор - управленец сайта (права продавца + управление пользователями)
+
+Возможности гостя:
+/api/auth/register (POST)
+/api/auth/login (POST)
+/api/auth/refresh (POST)
+
+Возможности пользователя:
+/api/auth/me (GET)
+<img width="696" height="353" alt="image_2026-03-17_14-01-23" src="https://github.com/user-attachments/assets/02afa2ae-072b-4c01-a249-34153517c51d" />
+
+/api/products (GET)
+<img width="699" height="405" alt="image_2026-03-17_14-01-55" src="https://github.com/user-attachments/assets/c2d524bd-32fa-415c-b2d6-69713bbdd3df" />
+
+/api/products/:id (GET)
+<img width="697" height="354" alt="image_2026-03-17_14-02-34" src="https://github.com/user-attachments/assets/cdc1f079-b351-4f5b-a045-88f2bbb7d733" />
+
+У пользователя нет доступа к:
+/api/users (GET)
+<img width="698" height="324" alt="image_2026-03-17_13-52-23" src="https://github.com/user-attachments/assets/74871004-ca4f-46dd-a0c7-30e32ba18432" />
+
+
+/api/users/:id (GET)
+<img width="700" height="320" alt="image_2026-03-17_13-52-58" src="https://github.com/user-attachments/assets/b262b57e-f5ac-48df-9a7f-17d397dee925" />
+
+
+/api/users/:id (PUT)
+<img width="697" height="340" alt="image_2026-03-17_13-53-30" src="https://github.com/user-attachments/assets/354cd3db-7007-48fa-aea6-28afa3026308" />
+
+
+/api/users/:id (DELETE)
+<img width="700" height="327" alt="image_2026-03-17_13-53-53" src="https://github.com/user-attachments/assets/deb88625-087f-465e-90b9-efcb87c5ff51" />
+
+
+/api/products/:id (DELETE)
+<img width="697" height="323" alt="image_2026-03-17_13-59-52" src="https://github.com/user-attachments/assets/33f3ea0a-3a69-49e6-8a4d-4f0dc90560bb" />
+
+
+/api/products/:id (PUT)
+<img width="698" height="340" alt="image_2026-03-17_13-58-54" src="https://github.com/user-attachments/assets/a3412884-4fdd-4b5b-afec-13d103cefbfe" />
+
+/api/products (POST)
+<img width="695" height="330" alt="image_2026-03-17_13-55-14" src="https://github.com/user-attachments/assets/d33b3ae0-79ac-42de-9d64-e666312177b5" />
+
+Возможности продавца:
+/api/products (POST)
+<img width="703" height="358" alt="image_2026-03-17_14-05-01" src="https://github.com/user-attachments/assets/4cd97769-80b5-44ea-a726-75c7ad35621d" />
+
+/api/products/:id (PUT)
+<img width="699" height="369" alt="image_2026-03-17_14-06-10" src="https://github.com/user-attachments/assets/55aab182-134c-4fa9-a573-7c59fe333c13" />
+
++ все возможности пользователя
+
+У продавца нет доступа к:
+/api/users (GET)
+<img width="698" height="347" alt="image_2026-03-17_14-07-34" src="https://github.com/user-attachments/assets/b07eae1a-62a3-4706-89df-a292d7ea7a25" />
+
+/api/users/:id (GET)
+<img width="697" height="310" alt="image_2026-03-17_14-08-09" src="https://github.com/user-attachments/assets/cc36bbd7-4aea-456e-89b1-9a7cf48a51b9" />
+
+/api/users/:id (PUT)
+<img width="697" height="322" alt="image_2026-03-17_14-08-37" src="https://github.com/user-attachments/assets/9ce490c5-3a2f-4136-8089-bfe32afaa4f7" />
+
+/api/users/:id (DELETE)
+<img width="696" height="316" alt="image_2026-03-17_14-09-08" src="https://github.com/user-attachments/assets/d5433bf7-095d-414c-a22d-b056e6ede41a" />
+
+/api/products/:id (DELETE)
+<img width="696" height="314" alt="image_2026-03-17_14-09-57" src="https://github.com/user-attachments/assets/bd05e2ce-c7ae-4444-a14c-705a0f582920" />
+
+У администратора есть все возможности
+
 Практика 9-10
 Была реализована генерация refresh токенов и добавлен маршрут - Post /api/auth/refresh
 Регистрация

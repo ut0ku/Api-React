@@ -195,8 +195,43 @@ GET /api/categories
 <img width="1908" height="882" alt="image" src="https://github.com/user-attachments/assets/3e5c006c-8607-47e2-8c21-b3ee11796651" />
 <img width="1916" height="277" alt="image" src="https://github.com/user-attachments/assets/23934bf0-8442-408f-914c-64c98ed15430" />
 
+# Практика 21
 
+Подключен Reddis, создан middleware для чтения данных из кэша, создана функция сохранения данных в кэш, добавлена очистка кэша при изменении пользователей и товаров, добавлено кэширование запросов для маршрутов: (GET) /api/users (1 минута), (GET) /api/users/:id (1 минута), (GET) /api/products (10 минут), (GET) /api/products/:id (10 минут).
 
+Запрос (GET) /api/users (При первом обращении данные получены сервером и сохранены в Redis)
+<img width="1296" height="870" alt="image" src="https://github.com/user-attachments/assets/a94fa7b7-7b6d-47e6-944a-b4df97930eeb" />
 
+Запрос (GET) /api/users (При повторном обращении в течении 1 минуты данные возвращены из Redis)
+<img width="1296" height="870" alt="image" src="https://github.com/user-attachments/assets/4c5ce5c6-9086-457e-8414-0b4c6f44feb2" />
 
+Запрос (GET) /api/users (По истечении 1 минуты, данные снова получены сервером)
+<img width="1299" height="873" alt="image" src="https://github.com/user-attachments/assets/714b43c9-b40d-4513-8fb5-dc2ce5e8d2aa" />
+
+Запрос (GET) /api/users/:id (При первом обращении данные получены сервером и сохранены в Redis)
+<img width="1299" height="873" alt="image" src="https://github.com/user-attachments/assets/27648564-308b-4453-8384-5c93c23ae4fd" />
+
+Запрос (GET) /api/users/:id (При повторном обращении в течении 1 минуты данные возвращены из Redis)
+<img width="1299" height="873" alt="image" src="https://github.com/user-attachments/assets/893f7187-d7fc-4b36-ab70-14f54493a168" />
+
+Запрос (GET) /api/users/:id (По истечении 1 минуты, данные снова получены сервером)
+<img width="1299" height="873" alt="image" src="https://github.com/user-attachments/assets/1318f53b-b2e7-4ad3-9e8b-f4a58a254bbf" />
+
+Запрос (GET) /api/products (При первом обращении данные получены сервером и сохранены в Redis)
+<img width="1299" height="873" alt="image" src="https://github.com/user-attachments/assets/f89daf09-4fee-458b-a804-b38c0b72ee61" />
+
+Запрос (GET) /api/products (При повторном обращении в течении 10 минут данные возвращены из Redis)
+<img width="1299" height="873" alt="image" src="https://github.com/user-attachments/assets/ea588220-9df3-40f6-8b6c-10f3feb8e661" />
+
+Запрос (GET) /api/products (По истечении 10 минут, данные снова получены сервером)
+<img width="1299" height="873" alt="image" src="https://github.com/user-attachments/assets/f89daf09-4fee-458b-a804-b38c0b72ee61" />
+
+Запрос (GET) /api/products/:id (При первом обращении данные получены сервером и сохранены в Redis)
+<img width="1299" height="873" alt="image" src="https://github.com/user-attachments/assets/81682406-ea5f-4ff1-8cbf-ba94d432ffb5" />
+
+Запрос (GET) /api/products/:id (При повторном обращении в течении 10 минут данные возвращены из Redis)
+<img width="1299" height="873" alt="image" src="https://github.com/user-attachments/assets/1975f001-a147-45bc-8e4f-b72f8a85510d" />
+
+Запрос (GET) /api/products/:id (По истечении 10 минут, данные снова получены сервером)
+<img width="1299" height="873" alt="image" src="https://github.com/user-attachments/assets/81682406-ea5f-4ff1-8cbf-ba94d432ffb5" />
 
